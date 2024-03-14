@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   serv_addr.sin_port = htons(port);
 
   if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-    error("Building Failed");
+    error("Binding Failed");
   listen(sockfd, 5);
   clilen = sizeof(cli_addr);
 
