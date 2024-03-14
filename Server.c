@@ -19,10 +19,10 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Port not provided.");
     exit(1);
   }
-  int sockfd, newsockfd, port;
+  int sockfd, newsockfd, port, n;
   char buffer[255];
   struct sockaddr_in serv_addr, cli_addr;
-  socklen_t client;
+  socklen_t clilen;
 
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd < 0)
@@ -38,4 +38,31 @@ int main(int argc, char *argv[])
 
   if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     error("Building Failed");
+  listen(sockfd, 5);
+  clilen = sizeof(cli_addr);
+
+  newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
+
+  if (newsockfd < 0)
+    error("Error in Accept");
+
+  while (1)
+  {
+    bzero(buffer, 255);
+    n = read(newsockfd, buffer, 255);
+    if (n < 0)
+      error("Error on reading");
+    printf("Client: %s\n", buffer);
+    bzero(buffer, 255);
+    fgets(buffer, 255, stdin);
+    n = write(newsockfd, buffer, strlen(buffer));
+    if (n < 0)
+      error("Error on writing");
+    int i = strncmp("Bye", buffer, 3);
+    if (i == 0)
+      break;
+  }
+  close(newsockfd);
+  close(sockfd);
+  return 0;
 }
